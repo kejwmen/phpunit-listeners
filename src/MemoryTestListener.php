@@ -95,5 +95,8 @@ class MemoryTestListener extends BaseTestListener
         $this->memoryUsageThreshold = $config['memoryUsageThreshold'] ? (int) $config['memoryUsageThreshold'] : self::DEFAULT_MEMORY_THRESHOLD;
         $this->reportBelowThreshold = $config['reportBelowThreshold'] ?? false;
         $this->reportAboveThreshold = $config['reportAboveThreshold'] ?? true;
+
+        $this->reportBelowThreshold = $config['maxBelowThreshold'] ?? 16;
+        $this->reportAboveThreshold = $config['maxAboveThreshold'] ?? 16;
     }
 }

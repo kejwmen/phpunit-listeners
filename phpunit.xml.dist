@@ -29,8 +29,17 @@
                     <element key="reportBelowThreshold">
                         <boolean>true</boolean>
                     </element>
+
+                    <element key="maxBelow">
+                        <integer>16</integer>
+                    </element>
+
                     <element key="reportAboveThreshold">
                         <boolean>true</boolean>
+                    </element>
+
+                    <element key="maxAbove">
+                        <integer>16</integer>
                     </element>
                 </array>
             </arguments>

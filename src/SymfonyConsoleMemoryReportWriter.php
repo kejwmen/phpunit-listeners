@@ -19,14 +19,29 @@ class SymfonyConsoleMemoryReportWriter implements MemoryReportWriter
     private $writeAbove;
     /** @var bool */
     private $writeBelow;
+    /**
+     * @var int
+     */
+    private $maxAbove;
+    /**
+     * @var int
+     */
+    private $maxBelow;
 
-    public function __construct(array $items, bool $writeAbove = true, bool $writeBelow = false)
-    {
+    public function __construct(
+        array $items,
+        bool $writeAbove = true,
+        bool $writeBelow = false,
+        int $maxAbove = 16,
+        int $maxBelow = 16
+    ) {
         $this->items = $items;
         $this->output = new SymfonyStyle(new ArgvInput(), new ConsoleOutput());
 
         $this->writeAbove = $writeAbove;
         $this->writeBelow = $writeBelow;
+        $this->maxAbove = $maxAbove;
+        $this->maxBelow = $maxBelow;
     }
 
     public function write(): void
@@ -76,7 +91,7 @@ class SymfonyConsoleMemoryReportWriter implements MemoryReportWriter
 
         $this->output->table(
             ['Name', 'Threshold (MB)', 'Usage (MB)', 'Exceeded by (MB)'],
-            $rendered
+            array_slice($rendered, 0, $this->maxAbove)
         );
     }
 
@@ -101,7 +116,7 @@ class SymfonyConsoleMemoryReportWriter implements MemoryReportWriter
 
         $this->output->table(
             ['Name', 'Threshold (MB)', 'Usage (MB)', 'Free memory (MB)'],
-            $rendered
+            array_slice($rendered, 0, $this->maxBelow)
         );
     }
 }
