@@ -26,6 +26,10 @@ class MemoryTestListener extends BaseTestListener
     private $reportBelowThreshold;
     /** @var bool */
     private $reportAboveThreshold;
+    /** @var int */
+    private $maxBelowThreshold;
+    /** @var int */
+    private $maxAboveThreshold;
 
     public function __construct(array $config)
     {
@@ -96,7 +100,7 @@ class MemoryTestListener extends BaseTestListener
         $this->reportBelowThreshold = $config['reportBelowThreshold'] ?? false;
         $this->reportAboveThreshold = $config['reportAboveThreshold'] ?? true;
 
-        $this->reportBelowThreshold = $config['maxBelowThreshold'] ?? 16;
-        $this->reportAboveThreshold = $config['maxAboveThreshold'] ?? 16;
+        $this->maxBelowThreshold = $config['maxBelowThreshold'] ?? 16;
+        $this->maxAboveThreshold = $config['maxAboveThreshold'] ?? 16;
     }
 }
