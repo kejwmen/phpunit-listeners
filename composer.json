@@ -1,0 +1,25 @@
+{
+  "name": "kejwmen/phpunit-listeners",
+  "description": "",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "kejwmen\\PhpUnitListeners\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "kejwmen\\PhpUnitListeners\\test\\": "test"
+    }
+  },
+  "require": {
+    "php": ">=7.1.0",
+    "symfony/console": "^3.3",
+    "lstrojny/functional-php": "^1.6"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.2",
+    "phpstan/phpstan": "^0.8.0"
+  }
+}
