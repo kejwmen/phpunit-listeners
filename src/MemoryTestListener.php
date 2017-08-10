@@ -54,7 +54,13 @@ class MemoryTestListener extends BaseTestListener
         $this->suites--;
 
         if ($this->suites === 0) {
-            (new SymfonyConsoleMemoryReportWriter($this->results, $this->reportAboveThreshold, $this->reportBelowThreshold))->write();
+            (new SymfonyConsoleMemoryReportWriter(
+                $this->results,
+                $this->reportAboveThreshold,
+                $this->reportBelowThreshold,
+                $this->maxAboveThreshold,
+                $this->maxBelowThreshold
+            ))->write();
         }
     }
 
