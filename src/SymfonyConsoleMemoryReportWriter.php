@@ -110,9 +110,11 @@ class SymfonyConsoleMemoryReportWriter implements MemoryReportWriter
             count($rendered)
         ));
 
+        $output = array_slice($rendered, 0, $this->maxBelow);
+
         $this->output->table(
             ['Name', 'Threshold (MB)', 'Usage (MB)', 'Free memory (MB)'],
-            array_slice($rendered, 0, $this->maxBelow)
+            $output
         );
     }
 }

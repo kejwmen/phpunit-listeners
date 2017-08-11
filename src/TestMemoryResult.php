@@ -60,7 +60,7 @@ class TestMemoryResult
             'name' => $this->test->toString(),
             'threshold' => sprintf('%.2f', $this->threshold),
             'usage' => sprintf('%.2f', $this->testUsage),
-            'exceeded' => sprintf('%.2f', $this->testUsage - $this->threshold)
+            'exceeded' => sprintf('%.2f', $this->testUsage - $this->th)
         ];
     }
 }
