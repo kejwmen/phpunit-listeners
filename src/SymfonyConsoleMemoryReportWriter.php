@@ -19,21 +19,17 @@ class SymfonyConsoleMemoryReportWriter implements MemoryReportWriter
     private $writeAbove;
     /** @var bool */
     private $writeBelow;
-    /**
-     * @var int
-     */
+    /** @var int */
     private $maxAbove;
-    /**
-     * @var int
-     */
+    /** @var int */
     private $maxBelow;
 
     public function __construct(
         array $items,
         bool $writeAbove = true,
         bool $writeBelow = false,
-        int $maxAbove = 16,
-        int $maxBelow = 16
+        int $maxAbove = 8,
+        int $maxBelow = 8
     ) {
         $this->items = $items;
         $this->output = new SymfonyStyle(new ArgvInput(), new ConsoleOutput());

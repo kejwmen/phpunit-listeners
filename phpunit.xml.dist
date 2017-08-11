@@ -33,7 +33,7 @@
                         <boolean>true</boolean>
                     </element>
                     <element key="maxBelowThreshold">
-                        <integer>16</integer>
+                        <integer>4</integer>
                     </element>
                     <element key="maxAboveThreshold">
                         <integer>16</integer>
