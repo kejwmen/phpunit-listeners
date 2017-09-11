@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace kejwmen\PhpUnitListeners;
+namespace kejwmen\PhpUnitListeners\Memory;
 
+use kejwmen\PhpUnitListeners\TestSummary;
 use PHPUnit\Framework\TestCase;
 
-class TestMemoryResult
+class MemoryTestSummary implements TestSummary
 {
     private const MEMORY_USAGE_ANNOTATION_NAME = 'memoryUsageThreshold';
 
@@ -13,18 +14,15 @@ class TestMemoryResult
     private $test;
     /** @var float */
     private $testUsage;
-    /** @var float */
-    private $defaultThreshold;
     /** @var int */
     private $threshold;
 
-    public function __construct(TestCase $test, float $testUsage, float $defaultThreshold)
+    public function __construct(TestCase $test, float $memoryUsage, int $defaultThreshold)
     {
         $this->test = $test;
-        $this->testUsage = $testUsage;
-        $this->defaultThreshold = $defaultThreshold;
+        $this->testUsage = $memoryUsage;
 
-        $this->threshold = $this->getThreshold();
+        $this->threshold = $this->calculateThreshold($defaultThreshold);
     }
 
     public function hasExceededThreshold(): bool
@@ -37,12 +35,11 @@ class TestMemoryResult
         return $this->testUsage - $this->threshold;
     }
 
-    private function getThreshold(): int
+    private function calculateThreshold(int $defaultThreshold): int
     {
         $testAnnotations = $this->test->getAnnotations();
         $methodThreshold = $this->getAnnotationValue($testAnnotations, 'method', self::MEMORY_USAGE_ANNOTATION_NAME);
         $classThreshold = $this->getAnnotationValue($testAnnotations, 'class', self::MEMORY_USAGE_ANNOTATION_NAME);
-        $defaultThreshold = $this->defaultThreshold;
 
         $threshold = $methodThreshold ?? $classThreshold ?? $defaultThreshold;
 
@@ -54,13 +51,24 @@ class TestMemoryResult
         return $annotationsArray[$type][$name][0] ?? null;
     }
 
-    public function render(): array
+    public function usage(): float
     {
-        return [
-            'name' => $this->test->toString(),
-            'threshold' => sprintf('%.2f', $this->threshold),
-            'usage' => sprintf('%.2f', $this->testUsage),
-            'exceeded' => sprintf('%.2f', $this->testUsage - $this->th)
-        ];
+        return $this->testUsage;
+    }
+
+    /**
+     * @return int
+     */
+    public function threshold(): int
+    {
+        return $this->threshold;
+    }
+
+    /**
+     * @return TestCase
+     */
+    public function test(): TestCase
+    {
+        return $this->test;
     }
 }

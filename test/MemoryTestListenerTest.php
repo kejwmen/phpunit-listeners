@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace kejwmen\PhpUnitListeners\Test;
 
+use kejwmen\PhpUnitListeners\Memory\MemoryTestListener;
 use PHPUnit\Framework\TestCase;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 class MemoryTestListenerTest extends TestCase
 {
@@ -12,21 +14,25 @@ class MemoryTestListenerTest extends TestCase
      */
     public function testItUsesMethodThreshold()
     {
+        // GIVEN
         $array = [
-            str_repeat('a', 2 * 1024 * 1024),
-            str_repeat('b', 1 * 1024 * 1024),
-            str_repeat('c', 1 * 1024 * 1024)
+            $this->allocateMegabytesOfMemory(2),
+            $this->allocateMegabytesOfMemory(1),
+            $this->allocateMegabytesOfMemory(1)
         ];
 
-        self::assertTrue(true);
-    }
+        $listener = new MemoryTestListener([
+            'memoryUsageThreshold' => 1
+        ]);
 
-    public function testItExceedesDefaultMethodThreshold()
-    {
-        $array = [
-            str_repeat('a', 16 * 1024 * 1024),
-            str_repeat('b', 8 * 1024 * 1024)
-        ];
+        /** @var TestCase|MockObject  $test */
+        $test = $this->createMock(TestCase::class);
+
+        $test->method('getAnnotations')
+            ->willReturn([]);
+
+        // WHEN
+        $listener->endTest($test, 0.0);
 
         self::assertTrue(true);
     }
@@ -34,21 +40,39 @@ class MemoryTestListenerTest extends TestCase
     public function testItStaysBelowDefaultMethodThreshold()
     {
         $array = [
-            str_repeat('a', 1 * 1024 * 1024)
+            $this->allocateMegabytesOfMemory(8)
+        ];
+
+        self::assertTrue(true);
+    }
+
+
+    public function testItExceedesDefaultMethodThreshold()
+    {
+        $array = [
+            $this->allocateMegabytesOfMemory(16),
+            $this->allocateMegabytesOfMemory(8)
         ];
 
         self::assertTrue(true);
     }
 
     /**
-     * @memoryUsageThreshold 3
+     * @memoryUsageThreshold 32
      */
     public function testItStaysBelowCustomThreshold()
     {
         $array = [
-            str_repeat('a', 4 * 1024 * 1024)
+            $this->allocateMegabytesOfMemory(48)
         ];
 
         self::assertTrue(true);
+    }
+
+    private function allocateMegabytesOfMemory(int $megabytes): string
+    {
+        return (string) (function() use ($megabytes) {
+            return str_repeat(random_bytes(1), $megabytes * 1024 * 1024);
+        })($megabytes);
     }
 }

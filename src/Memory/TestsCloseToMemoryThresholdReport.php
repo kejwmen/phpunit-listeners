@@ -1,0 +1,78 @@
+<?php
+declare(strict_types=1);
+
+namespace kejwmen\PhpUnitListeners\Memory;
+
+use Assert\Assert;
+use kejwmen\PhpUnitListeners\Report;
+use kejwmen\PhpUnitListeners\SortableReport;
+use kejwmen\PhpUnitListeners\SummaryRenderer;
+use kejwmen\PhpUnitListeners\TestSummary;
+
+class TestsCloseToMemoryThresholdReport implements Report, SortableReport
+{
+    /**
+     * @var int
+     */
+    private $limit;
+    /**
+     * @var SummaryRenderer
+     */
+    private $renderer;
+    /**
+     * @var string
+     */
+    private $name;
+
+    public function __construct(int $limit = 10, string $name = 'Tests below threshold', SummaryRenderer $renderer = null)
+    {
+        $this->limit = $limit;
+        $this->renderer = $renderer ?? new TestsCloseToMemoryThresholdRenderer();
+        $this->name = $name;
+    }
+
+    /**
+     * @return int
+     */
+    public function limit(): int
+    {
+        return $this->limit;
+    }
+
+    /***
+     * @param TestSummary|MemoryTestSummary $summary
+     * @return bool
+     */
+    public function includesSummary(TestSummary $summary): bool
+    {
+        Assert::that($summary)->isInstanceOf(MemoryTestSummary::class);
+
+        return $summary->usage() > 0 && $summary->exceededThresholdBy() < 0;
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    public function render(TestSummary $summary): array
+    {
+        return $this->renderer->renderSummary($summary);
+    }
+
+    /**
+     * @param array|MemoryTestSummary[] $items
+     * @return array|MemoryTestSummary[]
+     */
+    public function sortedDescending(array $items): array
+    {
+        return \Functional\sort($items, function (MemoryTestSummary $current, MemoryTestSummary $previous) {
+            return $previous->exceededThresholdBy() <=> $current->exceededThresholdBy();
+        });
+    }
+
+    public function headers(): array
+    {
+        return $this->renderer->renderHeaders();
+    }
+}

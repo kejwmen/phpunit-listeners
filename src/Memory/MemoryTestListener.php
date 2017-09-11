@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace kejwmen\PhpUnitListeners;
+namespace kejwmen\PhpUnitListeners\Memory;
 
+use kejwmen\PhpUnitListeners\SymfonyConsoleReportWriter;
 use PHPUnit\Framework\BaseTestListener;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestCase;
@@ -11,6 +12,7 @@ use PHPUnit\Framework\TestSuite;
 class MemoryTestListener extends BaseTestListener
 {
     private const DEFAULT_MEMORY_THRESHOLD = 128;
+    private const DEFAULT_REPORT_LIMIT = 10;
 
     /** @var int */
     private $memoryBefore;
@@ -20,20 +22,15 @@ class MemoryTestListener extends BaseTestListener
     private $suites;
     /** @var array */
     private $results;
-    /** @var int */
-    private $memoryUsageThreshold;
-    /** @var bool */
-    private $reportBelowThreshold;
-    /** @var bool */
-    private $reportAboveThreshold;
-    /** @var int */
-    private $maxBelowThreshold;
-    /** @var int */
-    private $maxAboveThreshold;
+    /** @var array */
+    private $config;
+    /** @var array */
+    private $reports;
 
-    public function __construct(array $config)
+    public function __construct(array $config, array $reports = [])
     {
         $this->loadConfig($config);
+        $this->loadReports($reports);
         $this->suites = 0;
         $this->results = [];
     }
@@ -54,13 +51,7 @@ class MemoryTestListener extends BaseTestListener
         $this->suites--;
 
         if ($this->suites === 0) {
-            (new SymfonyConsoleMemoryReportWriter(
-                $this->results,
-                $this->reportAboveThreshold,
-                $this->reportBelowThreshold,
-                $this->maxAboveThreshold,
-                $this->maxBelowThreshold
-            ))->write();
+            (new SymfonyConsoleReportWriter($this->reports))->write($this->results);
         }
     }
 
@@ -69,7 +60,7 @@ class MemoryTestListener extends BaseTestListener
      */
     public function startTest(Test $test)
     {
-        $this->memoryBefore = memory_get_peak_usage(true);
+        $this->memoryBefore = memory_get_usage(true);
     }
 
     /**
@@ -81,14 +72,14 @@ class MemoryTestListener extends BaseTestListener
             return null;
         }
 
-        $this->memoryAfter = memory_get_peak_usage(true);
+        $this->memoryAfter = memory_get_usage(true);
 
         $testUsage = $this->memoryAfter - $this->memoryBefore;
 
-        $this->results[] = new TestMemoryResult(
+        $this->results[] = new MemoryTestSummary(
             $test,
             $this->bytesToMegabytes($testUsage),
-            (float) $this->memoryUsageThreshold
+            $this->config['memoryUsageThreshold']
         );
     }
 
@@ -102,11 +93,25 @@ class MemoryTestListener extends BaseTestListener
      */
     private function loadConfig(array $config): void
     {
-        $this->memoryUsageThreshold = $config['memoryUsageThreshold'] ? (int) $config['memoryUsageThreshold'] : self::DEFAULT_MEMORY_THRESHOLD;
-        $this->reportBelowThreshold = $config['reportBelowThreshold'] ?? false;
-        $this->reportAboveThreshold = $config['reportAboveThreshold'] ?? true;
+        $this->config = [
+            'memoryUsageThreshold' => $config['memoryUsageThreshold'] ? (int) $config['memoryUsageThreshold'] : self::DEFAULT_MEMORY_THRESHOLD
+        ];
+    }
 
-        $this->maxBelowThreshold = $config['maxBelowThreshold'] ?? 16;
-        $this->maxAboveThreshold = $config['maxAboveThreshold'] ?? 16;
+    private function defaultReports(): array
+    {
+        return [
+            new TestsExceedingMemoryThresholdReport(
+                self::DEFAULT_REPORT_LIMIT
+            ),
+            new TestsCloseToMemoryThresholdReport(
+                self::DEFAULT_REPORT_LIMIT
+            )
+        ];
+    }
+
+    private function loadReports(?array $reports)
+    {
+        $this->reports = $reports ?? $this->defaultReports();
     }
 }

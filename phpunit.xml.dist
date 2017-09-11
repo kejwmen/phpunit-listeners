@@ -20,23 +20,31 @@
     </testsuites>
 
     <listeners>
-        <listener class="kejwmen\PhpUnitListeners\MemoryTestListener">
+        <listener class="kejwmen\PhpUnitListeners\Memory\MemoryTestListener">
             <arguments>
                 <array>
                     <element key="memoryUsageThreshold">
                         <integer>16</integer>
                     </element>
-                    <element key="reportBelowThreshold">
-                        <boolean>true</boolean>
+                </array>
+                <array>
+                    <element>
+                        <object class="kejwmen\PhpUnitListeners\Memory\TestsExceedingMemoryThresholdReport">
+                            <string>Above threshold</string>
+                            <arguments>
+                                <integer>10</integer>
+                                <string>Above threshold</string>
+                            </arguments>
+                        </object>
                     </element>
-                    <element key="reportAboveThreshold">
-                        <boolean>true</boolean>
-                    </element>
-                    <element key="maxBelowThreshold">
-                        <integer>4</integer>
-                    </element>
-                    <element key="maxAboveThreshold">
-                        <integer>16</integer>
+                    <element>
+                        <object class="kejwmen\PhpUnitListeners\Memory\TestsCloseToMemoryThresholdReport">
+                            <string>Below threshold</string>
+                            <arguments>
+                                <integer>10</integer>
+                                <string>Below threshold</string>
+                            </arguments>
+                        </object>
                     </element>
                 </array>
             </arguments>
