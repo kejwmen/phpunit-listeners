@@ -4,13 +4,16 @@ declare(strict_types=1);
 namespace kejwmen\PhpUnitListeners\Memory;
 
 use kejwmen\PhpUnitListeners\SymfonyConsoleReportWriter;
-use PHPUnit\Framework\BaseTestListener;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestListener;
+use PHPUnit\Framework\TestListenerDefaultImplementation;
 use PHPUnit\Framework\TestSuite;
 
-class MemoryTestListener extends BaseTestListener
+class MemoryTestListener implements TestListener
 {
+    use TestListenerDefaultImplementation;
+
     private const DEFAULT_MEMORY_THRESHOLD = 128;
     private const DEFAULT_REPORT_LIMIT = 10;
 
@@ -38,7 +41,7 @@ class MemoryTestListener extends BaseTestListener
     /**
      * @inheritdoc
      */
-    public function startTestSuite(TestSuite $suite)
+    public function startTestSuite(TestSuite $suite): void
     {
         $this->suites++;
     }
@@ -46,7 +49,7 @@ class MemoryTestListener extends BaseTestListener
     /**
      * @inheritdoc
      */
-    public function endTestSuite(TestSuite $suite)
+    public function endTestSuite(TestSuite $suite): void
     {
         $this->suites--;
 
@@ -58,7 +61,7 @@ class MemoryTestListener extends BaseTestListener
     /**
      * @inheritdoc
      */
-    public function startTest(Test $test)
+    public function startTest(Test $test): void
     {
         $this->memoryBefore = memory_get_usage(true);
     }
@@ -66,10 +69,10 @@ class MemoryTestListener extends BaseTestListener
     /**
      * @inheritdoc
      */
-    public function endTest(Test $test, $time)
+    public function endTest(Test $test, float $time): void
     {
         if (!$test instanceof TestCase) {
-            return null;
+            return;
         }
 
         $this->memoryAfter = memory_get_usage(true);
@@ -110,7 +113,7 @@ class MemoryTestListener extends BaseTestListener
         ];
     }
 
-    private function loadReports(?array $reports)
+    private function loadReports(?array $reports): void
     {
         $this->reports = $reports ?? $this->defaultReports();
     }
