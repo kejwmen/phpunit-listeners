@@ -1,10 +1,18 @@
 <?php
+
 declare(strict_types=1);
 
 namespace kejwmen\PhpUnitListeners;
 
-interface SummaryRenderer 
+interface SummaryRenderer
 {
-    public function renderHeaders(): array;
-    public function renderSummary(TestSummary $summary): array;
+    /**
+     * @return string[]
+     */
+    public function renderHeaders() : array;
+
+    /**
+     * @return mixed[]
+     */
+    public function renderSummary(TestSummary $summary) : array;
 }
