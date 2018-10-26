@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace kejwmen\PhpUnitListeners\Memory;
@@ -19,55 +20,52 @@ class MemoryTestSummary implements TestSummary
 
     public function __construct(TestCase $test, float $memoryUsage, int $defaultThreshold)
     {
-        $this->test = $test;
+        $this->test      = $test;
         $this->testUsage = $memoryUsage;
 
         $this->threshold = $this->calculateThreshold($defaultThreshold);
     }
 
-    public function hasExceededThreshold(): bool
+    public function hasExceededThreshold() : bool
     {
         return $this->testUsage > $this->threshold;
     }
 
-    public function exceededThresholdBy(): float
+    public function exceededThresholdBy() : float
     {
         return $this->testUsage - $this->threshold;
     }
 
-    private function calculateThreshold(int $defaultThreshold): int
+    private function calculateThreshold(int $defaultThreshold) : int
     {
         $testAnnotations = $this->test->getAnnotations();
         $methodThreshold = $this->getAnnotationValue($testAnnotations, 'method', self::MEMORY_USAGE_ANNOTATION_NAME);
-        $classThreshold = $this->getAnnotationValue($testAnnotations, 'class', self::MEMORY_USAGE_ANNOTATION_NAME);
+        $classThreshold  = $this->getAnnotationValue($testAnnotations, 'class', self::MEMORY_USAGE_ANNOTATION_NAME);
 
         $threshold = $methodThreshold ?? $classThreshold ?? $defaultThreshold;
 
         return (int) $threshold;
     }
 
-    private function getAnnotationValue(array $annotationsArray, $type, $name): ?string
+    /**
+     * @param mixed[] $annotationsArray
+     */
+    private function getAnnotationValue(array $annotationsArray, string $type, string $name) : ?string
     {
         return $annotationsArray[$type][$name][0] ?? null;
     }
 
-    public function usage(): float
+    public function usage() : float
     {
         return $this->testUsage;
     }
 
-    /**
-     * @return int
-     */
-    public function threshold(): int
+    public function threshold() : int
     {
         return $this->threshold;
     }
 
-    /**
-     * @return TestCase
-     */
-    public function test(): TestCase
+    public function test() : TestCase
     {
         return $this->test;
     }

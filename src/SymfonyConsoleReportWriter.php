@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace kejwmen\PhpUnitListeners;
@@ -6,57 +7,73 @@ namespace kejwmen\PhpUnitListeners;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function array_slice;
+use function count;
+use function Functional\each;
+use function Functional\map;
+use function Functional\select;
+use function sprintf;
 
 class SymfonyConsoleReportWriter implements ReportWriter
 {
     /** @var SymfonyStyle */
     private $output;
+
+    /** @var Report[] */
     private $reports;
 
-    public function __construct(
-        array $reports
-    ) {
+    /**
+     * @param Report[] $reports
+     */
+    public function __construct(array $reports)
+    {
         $this->output = new SymfonyStyle(new ArgvInput(), new ConsoleOutput());
 
         $this->reports = $reports;
     }
 
-    public function write(array $items): void
+    /**
+     * @param TestSummary[] $summaries
+     */
+    public function write(array $summaries) : void
     {
         $this->writeHeader();
 
-        \Functional\each($this->reports, function (Report $spec) use ($items) {
-            $this->writeForSpec($items, $spec);
+        each($this->reports, function (Report $spec) use ($summaries) : void {
+            $this->writeForSpec($summaries, $spec);
         });
     }
 
-    private function writeHeader(): void
+    private function writeHeader() : void
     {
         $this->output->newLine();
-        $this->output->title("Memory usage report");
+        $this->output->title('Memory usage report');
     }
 
-    private function writeForSpec(array $items, Report $reportSpec): void
+    /**
+     * @param TestSummary[] $summaries
+     */
+    private function writeForSpec(array $summaries, Report $reportSpec) : void
     {
         $this->output->section($reportSpec->name());
 
-        $items = \Functional\select($items, function (TestSummary $item) use ($reportSpec) {
+        $summaries = select($summaries, static function (TestSummary $item) use ($reportSpec) {
             return $reportSpec->includesSummary($item);
         });
 
-        if (count($items) > 0) {
-            $items = array_slice($items, 0, $reportSpec->limit());
+        if (count($summaries) > 0) {
+            $summaries = array_slice($summaries, 0, $reportSpec->limit());
 
             if ($reportSpec instanceof SortableReport) {
-                $items = $reportSpec->sortedDescending($items);
+                $summaries = $reportSpec->sortedDescending($summaries);
             }
 
-            $renderedItems = \Functional\map($items, function (TestSummary $item) use ($reportSpec) {
+            $renderedItems = map($summaries, static function (TestSummary $item) use ($reportSpec) {
                 return $reportSpec->render($item);
             });
 
             $this->output->error(sprintf(
-                "%d reported tests",
+                '%d reported tests',
                 count($renderedItems)
             ));
 
@@ -66,7 +83,7 @@ class SymfonyConsoleReportWriter implements ReportWriter
             );
         } else {
             $this->output->success(sprintf(
-                "No reported tests"
+                'No reported tests'
             ));
         }
     }

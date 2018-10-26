@@ -1,0 +1,32 @@
+dist: trusty
+sudo: false
+language: php
+
+php:
+- 7.1
+- 7.2
+- 7.3
+- nightly
+
+cache:
+  directories:
+  - $HOME/.composer/cache
+
+install: travis_retry composer update --prefer-dist
+
+jobs:
+  allow_failures:
+  - php: nightly
+
+  exclude:
+  - php: 7.2
+
+  include:
+  - stage: Test
+    php: 7.2
+
+  - stage: Codestyle
+    script: composer run-script cs
+
+  - stage: Lint
+    script: composer run-script phpstan
