@@ -39,9 +39,12 @@ class SymfonyConsoleReportWriter implements ReportWriter
     {
         $this->writeHeader();
 
-        each($this->reports, function (Report $spec) use ($summaries) : void {
-            $this->writeForSpec($summaries, $spec);
-        });
+        each(
+            $this->reports,
+            function (Report $spec) use ($summaries) : void {
+                $this->writeForSpec($summaries, $spec);
+            }
+        );
     }
 
     private function writeHeader() : void
@@ -57,9 +60,12 @@ class SymfonyConsoleReportWriter implements ReportWriter
     {
         $this->output->section($reportSpec->name());
 
-        $summaries = select($summaries, static function (TestSummary $item) use ($reportSpec) {
-            return $reportSpec->includesSummary($item);
-        });
+        $summaries = select(
+            $summaries,
+            static function (TestSummary $item) use ($reportSpec) {
+                return $reportSpec->includesSummary($item);
+            }
+        );
 
         if (count($summaries) > 0) {
             $summaries = array_slice($summaries, 0, $reportSpec->limit());
@@ -68,23 +74,30 @@ class SymfonyConsoleReportWriter implements ReportWriter
                 $summaries = $reportSpec->sortedDescending($summaries);
             }
 
-            $renderedItems = map($summaries, static function (TestSummary $item) use ($reportSpec) {
-                return $reportSpec->render($item);
-            });
+            $renderedItems = map(
+                $summaries,
+                static function (TestSummary $item) use ($reportSpec) {
+                    return $reportSpec->render($item);
+                }
+            );
 
-            $this->output->error(sprintf(
-                '%d reported tests',
-                count($renderedItems)
-            ));
+            $this->output->error(
+                sprintf(
+                    '%d reported tests',
+                    count($renderedItems)
+                )
+            );
 
             $this->output->table(
                 $reportSpec->headers(),
                 array_slice($renderedItems, 0, $reportSpec->limit())
             );
         } else {
-            $this->output->success(sprintf(
-                'No reported tests'
-            ));
+            $this->output->success(
+                sprintf(
+                    'No reported tests'
+                )
+            );
         }
     }
 }

@@ -9,33 +9,30 @@ use kejwmen\PhpUnitListeners\Report;
 use kejwmen\PhpUnitListeners\SymfonyConsoleReportWriter;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestListenerDefaultImplementation;
 use PHPUnit\Framework\TestSuite;
+use PHPUnit\Runner\AfterLastTestHook;
+use PHPUnit\Runner\AfterTestHook;
+use PHPUnit\Runner\BeforeFirstTestHook;
+use PHPUnit\Runner\BeforeTestHook;
 use function memory_get_usage;
 
-class MemoryTestListener implements TestListener
+class MemoryTestListener implements BeforeFirstTestHook, AfterLastTestHook, BeforeTestHook, AfterTestHook
 {
     use TestListenerDefaultImplementation;
 
     private const DEFAULT_MEMORY_THRESHOLD = 128;
     private const DEFAULT_REPORT_LIMIT     = 10;
-
     /** @var int */
     private $memoryBefore;
-
     /** @var int */
     private $memoryAfter;
-
     /** @var int */
     private $suites;
-
     /** @var MemoryTestSummary[] */
     private $results;
-
     /** @var mixed[] */
     private $config;
-
     /** @var Report[] */
     private $reports;
 
@@ -53,12 +50,12 @@ class MemoryTestListener implements TestListener
         $this->results = [];
     }
 
-    public function startTestSuite(TestSuite $suite) : void
+    public function executeBeforeFirstTest(TestSuite $suite) : void
     {
         $this->suites++;
     }
 
-    public function endTestSuite(TestSuite $suite) : void
+    public function executeAfterLastTest(TestSuite $suite) : void
     {
         $this->suites--;
 
@@ -69,12 +66,12 @@ class MemoryTestListener implements TestListener
         (new SymfonyConsoleReportWriter($this->reports))->write($this->results);
     }
 
-    public function startTest(Test $test) : void
+    public function executeBeforeTest(Test $test) : void
     {
         $this->memoryBefore = memory_get_usage(true);
     }
 
-    public function endTest(Test $test, float $time) : void
+    public function executeAfterTest(Test $test, float $time) : void
     {
         if (! $test instanceof TestCase) {
             return;

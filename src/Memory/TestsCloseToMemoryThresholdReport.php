@@ -67,9 +67,12 @@ class TestsCloseToMemoryThresholdReport implements Report, SortableReport
      */
     public function sortedDescending(array $items) : array
     {
-        return sort($items, static function (MemoryTestSummary $current, MemoryTestSummary $previous) {
-            return $previous->exceededThresholdBy() <=> $current->exceededThresholdBy();
-        });
+        return sort(
+            $items,
+            static function (MemoryTestSummary $current, MemoryTestSummary $previous) {
+                return $previous->exceededThresholdBy() <=> $current->exceededThresholdBy();
+            }
+        );
     }
 
     /**

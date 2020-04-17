@@ -7,6 +7,7 @@ namespace kejwmen\PhpUnitListeners\Test;
 use kejwmen\PhpUnitListeners\Memory\MemoryTestListener;
 use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use function assert;
 use function random_bytes;
 use function str_repeat;
 
@@ -23,8 +24,8 @@ class MemoryTestListenerTest extends TestCase
 
         $listener = new MemoryTestListener(['memoryUsageThreshold' => 1]);
 
-        /** @var TestCase|MockObject  $test */
         $test = $this->createMock(TestCase::class);
+        assert($test instanceof TestCase || $test instanceof MockObject);
 
         $test->method('getAnnotations')
             ->willReturn([]);
@@ -41,7 +42,6 @@ class MemoryTestListenerTest extends TestCase
 
         self::assertTrue(true);
     }
-
 
     public function testItExceedesDefaultMethodThreshold() : void
     {
