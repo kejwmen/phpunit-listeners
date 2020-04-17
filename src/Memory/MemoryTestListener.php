@@ -9,15 +9,12 @@ use kejwmen\PhpUnitListeners\Report;
 use kejwmen\PhpUnitListeners\SymfonyConsoleReportWriter;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestListenerDefaultImplementation;
 use PHPUnit\Framework\TestSuite;
-use PHPUnit\Runner\AfterLastTestHook;
-use PHPUnit\Runner\AfterTestHook;
-use PHPUnit\Runner\BeforeFirstTestHook;
-use PHPUnit\Runner\BeforeTestHook;
 use function memory_get_usage;
 
-class MemoryTestListener implements BeforeFirstTestHook, AfterLastTestHook, BeforeTestHook, AfterTestHook
+class MemoryTestListener implements TestListener
 {
     use TestListenerDefaultImplementation;
 
@@ -50,12 +47,12 @@ class MemoryTestListener implements BeforeFirstTestHook, AfterLastTestHook, Befo
         $this->results = [];
     }
 
-    public function executeBeforeFirstTest(TestSuite $suite) : void
+    public function startTestSuite(TestSuite $suite) : void
     {
         $this->suites++;
     }
 
-    public function executeAfterLastTest(TestSuite $suite) : void
+    public function endTestSuite(TestSuite $suite) : void
     {
         $this->suites--;
 
@@ -66,12 +63,12 @@ class MemoryTestListener implements BeforeFirstTestHook, AfterLastTestHook, Befo
         (new SymfonyConsoleReportWriter($this->reports))->write($this->results);
     }
 
-    public function executeBeforeTest(Test $test) : void
+    public function startTest(Test $test) : void
     {
         $this->memoryBefore = memory_get_usage(true);
     }
 
-    public function executeAfterTest(Test $test, float $time) : void
+    public function endTest(Test $test, float $time) : void
     {
         if (! $test instanceof TestCase) {
             return;

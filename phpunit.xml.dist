@@ -27,18 +27,16 @@
                     </element>
                 </array>
                 <array>
-                    <element>
+                    <element key="0">
                         <object class="kejwmen\PhpUnitListeners\Memory\TestsExceedingMemoryThresholdReport">
-                            <string>Above threshold</string>
                             <arguments>
                                 <integer>10</integer>
                                 <string>Above threshold</string>
                             </arguments>
                         </object>
                     </element>
-                    <element>
+                    <element key="1">
                         <object class="kejwmen\PhpUnitListeners\Memory\TestsCloseToMemoryThresholdReport">
-                            <string>Below threshold</string>
                             <arguments>
                                 <integer>10</integer>
                                 <string>Below threshold</string>
